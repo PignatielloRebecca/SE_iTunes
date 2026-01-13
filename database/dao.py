@@ -51,4 +51,9 @@ class DAO:
         conn.close()
         return result
 
+    # --> devo verificare:
+    #---> le due traccie sino presenti nella tabella playlist_track, abbiano la stessa playlist, ma due album differenti
+    # i due album devono appartenere alla tabella ALBULM FILTRATI
+
+
 
