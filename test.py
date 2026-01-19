@@ -5,4 +5,4 @@ import networkx as nx
 
 m=Model()
 
-print(m._build_graph(120))
+print(m.build_graph(120))

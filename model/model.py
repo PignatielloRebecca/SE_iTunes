@@ -3,6 +3,88 @@ from database.dao import DAO
 from copy import copy
 
 class Model:
+    def __init__(self):
+        self._lista_id=[]
+        self._map_nodi={}
+
+        self.G=nx.Graph()
+
+    def load_map_nodi(self, durata):
+
+        for a in DAO.read_all_album(durata):
+            self._map_nodi[a.id]=a
+        return self._map_nodi
+
+
+    def build_graph(self, durata):
+
+        # aggiungo gli archi
+        self._mappa_nodi=self.load_map_nodi(durata)
+        nodi=[id for id in self._mappa_nodi.keys()]
+        self.G.add_nodes_from(nodi)
+
+        #aggiungo i nodi
+        album=DAO.read_all_connessioni(durata)
+        for (a1,a2) in album:
+            self.G.add_edge(a1,a2)
+
+        return self.G
+
+    def analisi_componente_connessa(self, id_album):
+
+        # componente connessa
+        nodi=nx.node_connected_component(self.G, id_album) # mi restituisce una lista di id
+
+        lunghezza=len(nodi)
+
+        durata=0
+        id=list(n for n in nodi)
+
+        for (c,v) in self._mappa_nodi.items():
+            # se la chiave si trova in quella mappa
+            if c in id:
+                durata+=self._mappa_nodi[c].durata
+
+        return lunghezza, durata
+
+
+    def set_album(self, id_album, dTot):
+
+        # prendo la componente connessa di a1
+        nodo = nx.node_connected_component(self.G, id_album)
+
+        lista_album=[]
+        # mi costruisco un dizionario con fli ID della componente connessa, perchè ho gli id e devo risalire agli oggetti--> mi serve la durata
+        for (c,v) in self._mappa_nodi.items():
+            if c in nodo:
+                lista_album.append(v)  # lista_album è una lista di oggetti
+        a1=self._mappa_nodi[id_album]
+
+        self._best_cammmino=[]
+        self._best_durata=0
+
+        self.__ricorsione(lista_album ,dTot, [a1], a1.durata)
+
+        return self._best_cammmino, self._best_durata
+
+
+    def __ricorsione(self,lista_album, dTot, lunghezza_parziale, durata_corrente):
+
+        if durata_corrente > dTot:
+            return
+
+        if len(lunghezza_parziale) > len(self._best_cammmino): # mi ricordo che devo trovare una lista che contiene il maggior numero di cammini
+            self._best_cammmino=lunghezza_parziale.copy()
+            self._best_durata=durata_corrente
+
+        for a in lista_album:
+            if a not in lunghezza_parziale:  # devo verificare che il vicino non si trovi nell'album
+                lunghezza_parziale.append(a)
+                self.__ricorsione(lista_album, dTot, lunghezza_parziale, durata_corrente + a.durata)
+
+                lunghezza_parziale.pop()
+
+"""
 
     def __init__(self):
         self._lista_nodi=[]
@@ -102,7 +184,7 @@ class Model:
 
     # per la ricorsione devo iterare su delle liste
     # analizzo tutte le componenti della lista
-
+"""
 
 
 
