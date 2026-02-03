@@ -62,6 +62,33 @@ class DAO:
     # i due album devono appartenere alla tabella ALBULM FILTRATI
 
 
+"""
+select  a1.album_id, a2.album_id 
+from (select distinct t.id, t.album_id, pt.playlist_id  
+			from track t, playlist_track pt 
+			where t.id= pt.track_id and t.album_id in (select a.id  
+            from album a, track t
+            where a.id = t.album_id
+            group by a.id 
+            having sum(t.milliseconds)/60000 > 120)) a1, 
+       (select distinct t.id, t.album_id, pt.playlist_id 
+			from track t, playlist_track pt 
+			where t.id= pt.track_id and t.album_id in (select a.id  
+            from album a, track t
+            where a.id = t.album_id
+            group by a.id 
+            having sum(t.milliseconds)/60000 > 120)) a2 
+where a1.playlist_id = a2.playlist_id and a1.album_id< a2.album_id
+group by a1.album_id, a2.album_id 
+    	 
+       
+
+
+
+
+"""
+
+
 
 
 
